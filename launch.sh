@@ -11,27 +11,33 @@ CHK_PREFIX=/datadrive/home1/chk/
 # data prefix
 DATA_PREFIX=/datadrive/data/imagenet/official/
 
-# Enable checkpoint
-python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} models/image_classification/pytorch-imagenet-cf.py --dali \
-                                    -a ${MODEL_NAME} \
-                                    -b ${BATCH_SIZE} \
-                                    --workers ${N_WORKER} \
-                                    --epochs ${EPOCHS} \
-                                    --deterministic --noeval --barrier --checkfreq \
-                                    --chk-prefix ${CHK_PREFIX} \
-                                    --cf_iterator \
-                                    --data ${DATA_PREFIX}
+if [[ -z $1 ]]; then
+    echo "Usage: $0 [ckpt|nockpt]"
+    exit 0
+fi
 
-# Disable checkpoint
-python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} models/image_classification/pytorch-imagenet-cf.py --dali \
-                                    -a ${MODEL_NAME} \
-                                    -b ${BATCH_SIZE} \
-                                    --workers {N_WORKER} \
-                                    --epochs ${EPOCHS} \
-                                    --deterministic --noeval --barrier --checkfreq \
-                                    --chk-freq 0 \
-                                    --chk_mode_baseline \
-                                    --chk-prefix ${CHK_PREFIX} \
-                                    --cf_iterator \
-                                    --data ${DATA_PREFIX}
-
+if [[ $1 == "ckpt" ]]; then
+    echo "Enable checkpointing"
+    python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} models/image_classification/pytorch-imagenet-cf.py --dali \
+                                        -a ${MODEL_NAME} \
+                                        -b ${BATCH_SIZE} \
+                                        --workers ${N_WORKER} \
+                                        --epochs ${EPOCHS} \
+                                        --deterministic --noeval --barrier --checkfreq \
+                                        --chk-prefix ${CHK_PREFIX} \
+                                        --cf_iterator \
+                                        --data ${DATA_PREFIX}
+else
+    echo "Disable checkpointing"
+    python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} models/image_classification/pytorch-imagenet-cf.py --dali \
+                                        -a ${MODEL_NAME} \
+                                        -b ${BATCH_SIZE} \
+                                        --workers ${N_WORKER} \
+                                        --epochs ${EPOCHS} \
+                                        --deterministic --noeval --barrier --checkfreq \
+                                        --chk-freq 0 \
+                                        --chk_mode_baseline \
+                                        --chk-prefix ${CHK_PREFIX} \
+                                        --cf_iterator \
+                                        --data ${DATA_PREFIX}
+fi
