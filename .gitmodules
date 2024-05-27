@@ -1,0 +1,6 @@
+[submodule "CheckFreq-Fixed"]
+	path = CheckFreq-Fixed
+	url = https://github.com/Miracle0x0/CheckFreq-Fixed.git
+[submodule "CoorDL-CheckFreq"]
+	path = CoorDL-CheckFreq
+	url = https://github.com/Miracle0x0/CoorDL-CheckFreq.git
